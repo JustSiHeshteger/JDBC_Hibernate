@@ -17,17 +17,16 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void createUsersTable() {
         Transaction transaction = null;
-        String sqlQuery = """
+
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.createSQLQuery("""
                 CREATE TABLE IF NOT EXISTS users (
                 id INT NOT NULL AUTO_INCREMENT,
                 name VARCHAR(45) NOT NULL,
                 lastname VARCHAR(45) NOT NULL,
                 age INT NOT NULL,
-                PRIMARY KEY (id))""";
-
-        try (Session session = Util.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            session.createSQLQuery(sqlQuery).executeUpdate();
+                PRIMARY KEY (id))""").executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
             if (transaction != null) {
@@ -40,11 +39,10 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void dropUsersTable() {
         Transaction transaction = null;
-        String sqlQuery = "DROP TABLE IF EXISTS users";
 
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.createSQLQuery(sqlQuery).executeUpdate();
+            session.createSQLQuery("DROP TABLE IF EXISTS users").executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
             if (transaction != null) {
@@ -102,11 +100,10 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         Transaction transaction = null;
-        String sqlQuery = "delete User";
 
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.createQuery(sqlQuery).executeUpdate();
+            session.createQuery("delete User").executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
             if (transaction != null) {
